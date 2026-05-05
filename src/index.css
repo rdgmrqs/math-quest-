@@ -1,55 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --color-neo-yellow: #FFDE59;
-  --color-neo-purple: #6C5CE7;
-  --color-neo-pink: #FF7675;
-  --color-neo-green: #00B894;
-  --color-neo-orange: #E17055;
-  --color-neo-blue: #0984E3;
-  --color-math-bg: #F0F4F8;
+  --color-neo-yellow: #FFD93D;
+  --color-neo-purple: #9254FF;
+  --color-neo-pink: #FF6B6B;
+  --color-neo-green: #6BCB77;
+  --color-neo-orange: #FF8066;
+  --color-neo-blue: #4D96FF;
+  --color-math-bg: #F9D84A;
   
-  --shadow-neo: 6px 6px 0px 0px #2D3436;
-  --shadow-neo-hover: 10px 10px 0px 0px #2D3436;
-  --shadow-neo-sm: 4px 4px 0px 0px #2D3436;
+  --shadow-neo: 10px 10px 0px 0px #2D3436;
+  --shadow-neo-hover: 14px 14px 0px 0px #2D3436;
+  --shadow-neo-sm: 6px 6px 0px 0px #2D3436;
 }
 
 @layer base {
   body {
     @apply bg-math-bg text-[#2D3436] antialiased selection:bg-neo-purple selection:text-white overflow-x-hidden;
     font-family: var(--font-sans);
-    background-image: 
-      linear-gradient(rgba(108, 92, 231, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(108, 92, 231, 0.04) 1px, transparent 1px),
-      linear-gradient(rgba(108, 92, 231, 0.08) 2px, transparent 2px),
-      linear-gradient(90deg, rgba(108, 92, 231, 0.08) 2px, transparent 2px);
-    background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
-    background-attachment: fixed;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     @apply font-black tracking-tight;
   }
 }
 
 @layer components {
   .neo-card {
-    @apply bg-white border-[3px] border-[#2D3436] rounded-[24px] shadow-neo transition-all duration-300 relative;
-    background-image: radial-gradient(#2D3436 0.5px, transparent 0.5px);
-    background-size: 24px 24px;
-    background-position: 12px 12px;
+    @apply bg-white border-[3px] border-[#2D3436] rounded-[32px] shadow-neo transition-all duration-300 relative overflow-hidden;
   }
 
-  .neo-card::before {
-     content: "";
-     @apply absolute inset-0 opacity-[0.02] pointer-events-none rounded-[21px] bg-repeat;
-     background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1v38h38V1H1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E");
+  .dotted-grid {
+    background-image: radial-gradient(rgba(45, 52, 54, 0.08) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    background-position: 0 0;
   }
   
   .neo-card-hover {

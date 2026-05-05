@@ -1,13 +1,13 @@
 export interface MathProblem {
   id: string;
   question: string;
-  answer: number;
+  answer: number | string;
   difficulty: 'easy' | 'medium' | 'hard';
   points: number;
   category: string;
-  imageUrl?: string;
   hint?: string;
-  options?: number[];
+  options?: (number | string)[];
+  inputType: 'choice' | 'text';
   visualData?: {
     type: 'shape' | 'count' | 'grid' | 'logic' | 'board' | 'pits' | 'stack' | 'row';
     shape?: 'rectangle' | 'circle' | 'triangle' | 'hexagon';
