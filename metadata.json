@@ -1,0 +1,6 @@
+{
+  "name": "Math Quest",
+  "description": "An interactive math problem solving game with a point-based reward system. Solve challenges to climb the ranks!",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
