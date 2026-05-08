@@ -20,6 +20,13 @@ const CNJM_GAMES = [
   'Hexiamante', 'Meta'
 ];
 
+const BROAD_CATEGORIES: Record<string, string[]> = {
+  'Arithmetic': ['Product', 'Dominorio', 'Ouri', 'Magic Squares', 'Game of 24', 'Fibonacci', 'Sesqui'],
+  'Algebra': ['Sam Loyd', 'Einstein\'s Riddle', 'Meta', 'Polyminoes'],
+  'Geometry': ['Tracks', 'Advancement', 'Cats and Rats', 'Hex', 'Amazons', 'Tangram', 'Stomachion', 'Azumetria', 'Chaos Game', 'Arbusto', 'Chess', 'Checkers', 'Yote', 'Pentalfa', 'Hexiamante', 'Labyrinth'],
+  'Logic': ['Semaphore', 'Alcuin of York', '15 Puzzle', 'Sokoban', 'Sudoku', 'Nim', 'Tantrix', 'Dots and Boxes', 'Solitaire', 'Frog', 'Life Game', 'Peoes', 'Alquerque', 'Senet']
+};
+
 export const getDailyProblem = (): MathProblem => {
   const now = new Date();
   const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
@@ -40,7 +47,7 @@ export const getDailyProblem = (): MathProblem => {
 export const getRandomProblem = (
   selectedDifficulty?: 'easy' | 'medium' | 'hard', 
   level: number = 1,
-  mode: 'mixed' | 'classic' | 'story' | 'puzzle' = 'mixed',
+  mode: 'mixed' | 'classic' | 'story' | 'puzzle' | 'timed' | 'survival' = 'mixed',
   specificGame?: string
 ): MathProblem => {
   let difficulty: 'easy' | 'medium' | 'hard';
@@ -54,7 +61,8 @@ export const getRandomProblem = (
     else difficulty = randDist > 0.5 ? 'hard' : (randDist > 0.2 ? 'medium' : 'easy');
   }
 
-  const game = specificGame || CNJM_GAMES[Math.floor(Math.random() * CNJM_GAMES.length)];
+  const gamesPool = CNJM_GAMES;
+  const game = specificGame || gamesPool[Math.floor(Math.random() * gamesPool.length)];
   return generateProblemByGame(game, difficulty);
 };
 
@@ -111,28 +119,27 @@ const generateSemaforoProblem = (id: string, difficulty: 'easy' | 'medium' | 'ha
   if (difficulty === 'easy') {
     return {
       id,
-      question: "In Semaphore, you have two Yellow (Y) pieces in a row. What piece should you place in the third space to win immediately?",
-      answer: "Yellow",
-      options: ["Green", "Yellow", "Red"],
+      question: "In a repeating sequence Green (1), Yellow (2), Red (3), Green (1)... what is the sum of the first 4 terms?",
+      answer: 7,
+      options: ["6", "7", "8", "9"],
       inputType: 'choice',
       category: 'Semaphore',
       difficulty: 'easy',
       points: 20,
-      hint: "Rule: You win by completing a line of 3 pieces of the same color.",
-      visualData: { type: 'row', row: ['Y', 'Y', '?'] }
+      hint: "1 + 2 + 3 + 1 = ?"
     };
   }
   return {
     id,
-    question: "In Semaphore, following the piece cycle, which color can be placed on top of a Yellow (Y) piece?",
-    answer: "Red",
-    options: ["Green", "Yellow", "Red"],
+    question: "A sequence follows the rule: G → Y → R. If G=1, Y=2, R=3, and the sequence repeats, what is the 10th term?",
+    answer: 1,
+    options: ["1", "2", "3"],
     inputType: 'choice',
     category: 'Semaphore',
     difficulty: 'medium',
     points: 30,
-    hint: "Cycle: Green -> Yellow -> Red.",
-    visualData: { type: 'logic', label: 'G → Y → ?' }
+    hint: "10 mod 3 = ?",
+    visualData: { type: 'logic', label: '1, 2, 3, 1, 2, 3...' }
   };
 };
 
@@ -174,7 +181,11 @@ const generateDominorioProblem = (id: string, difficulty: 'easy' | 'medium' | 'h
     difficulty,
     points: 25,
     hint: "10 - 4 = ?",
-    visualData: { type: 'grid', grid: [[4, '?']] }
+    visualData: { 
+      type: 'grid', 
+      grid: [['4', '▣']],
+      label: 'DOMINO.COVER.v1'
+    }
   };
 };
 
@@ -195,94 +206,123 @@ const generateOuriProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard')
 const generateAvancoProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "How do you capture an opponent's piece in the game Advancement?",
-    answer: "Diagonally",
-    options: ["Diagonally", "By jumping", "Moving backwards", "Forward"],
-    inputType: 'choice',
+    question: "A piece moves diagonally from square (1,1) to (3,3). What is the total number of squares it passed through (including start and end)?",
+    answer: 3,
+    inputType: 'text',
     category: 'Advancement',
     difficulty,
     points: 30,
-    hint: "Same as a pawn in Chess.",
-    visualData: { type: 'logic', label: 'Cap: ↖ or ↗' }
+    hint: "Counts squares: (1,1), (2,2), (3,3)",
+    visualData: { type: 'logic', label: '(1,1) → (3,3)' }
   };
 };
 
 const generateGatosERatosProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "What is the main objective of the Rats to defeat the Cat?",
-    answer: "Block the Cat",
-    options: ["Capture the Cat", "Block the Cat", "Escape the board"],
-    inputType: 'choice',
+    question: "If a Cat is at (2,2) and a Rat is at (5,6) on a grid, what is the Manhattan distance (horizontal + vertical steps) between them?",
+    answer: 7,
+    inputType: 'text',
     category: 'Cats & Rats',
     difficulty,
     points: 25,
-    visualData: { type: 'grid', grid: [['웃', ' ', ' '], ['', '●', ''], ['', '', '●']] }
+    hint: "|2-5| + |2-6| = ?",
+    visualData: { type: 'grid', grid: [['C', '', ''], ['', '', ''], ['', '', 'R']] }
   };
 };
 
 const generateHexProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "What is the final goal in the game Hex?",
-    answer: "Connect the two sides of your color",
-    options: ["Capture pieces", "Connect the two sides of your color", "Block the center"],
-    inputType: 'choice',
+    question: "On an 11x11 hexagonal board, what is the total number of hex cells?",
+    answer: 121,
+    inputType: 'text',
     category: 'Hex',
     difficulty,
     points: 25,
-    visualData: { type: 'shape', shape: 'hexagon', count: 1 }
+    hint: "Area of a rhombus/square: base x height",
+    visualData: { type: 'shape', shape: 'hexagon', count: 11 }
   };
 };
 
 const generateAmazonasProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
+  const grid = Array(8).fill(null).map(() => Array(8).fill(''));
+  grid[3][3] = 'queen'; // Represent Amazon as a Queen
+  
   return {
     id,
-    question: "In Amazonas, what does the piece do after moving?",
-    answer: "Shoots an arrow",
-    options: ["Jumps another piece", "Captures", "Shoots an arrow", "Blocks the king"],
-    inputType: 'choice',
+    question: "An Amazon moves like a Queen. From (4,4) on an 8x8 board, how many adjacent squares (one step away) can it move to?",
+    answer: 8,
+    inputType: 'text',
     category: 'Amazons',
     difficulty,
     points: 35,
-    visualData: { type: 'logic', label: 'Move + Shoot' }
+    hint: "Think about the squares surrounding it.",
+    visualData: { 
+      type: 'grid', 
+      grid: grid,
+      style: 'chess',
+      label: 'AMAZON.POSTURE.v1'
+    }
   };
 };
 
 const generateAlquerqueProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "Alquerque is the ancestor of which modern game?",
-    answer: "Checkers",
-    options: ["Chess", "Checkers", "Go", "Ludo"],
-    inputType: 'choice',
+    question: "If two players start with 12 pieces each, and 5 are captured from one and 3 from the other, how many pieces remain on the board?",
+    answer: 16,
+    inputType: 'text',
     category: 'Alquerque',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "Total start - total captured."
   };
 };
 
 const generateLabirintoProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In the game Labyrinth, what is the maximum number of walls you can place at once?",
-    answer: 1,
+    question: "In a 4x4 grid of squares, how many internal vertical lines can you draw to separate squares?",
+    answer: 12,
     inputType: 'text',
     category: 'Labyrinth',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "3 lines per row, 4 rows total.",
+    visualData: { 
+      type: 'grid', 
+      grid: [
+        ['', '|', '', '|', '', '|', ''],
+        ['', '|', '', '|', '', '|', ''],
+        ['', '|', '', '|', '', '|', ''],
+        ['', '|', '', '|', '', '|', '']
+      ],
+      label: 'INTERNAL.STRUCTURE'
+    }
   };
 };
 
 const generateSenetProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "How many squares does the Senet board have (Ancient Egypt)?",
-    answer: 30,
+    question: "A Senet board is a 3x10 grid of squares. If you move a piece 15 spaces from the first square (1,1), in which row will it land (assuming rows of 10)?",
+    answer: 2,
     inputType: 'text',
     category: 'Senet',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "Squares 1-10 are row 1, 11-20 are row 2.",
+    visualData: {
+      type: 'grid',
+      style: 'senet',
+      grid: [
+         ['', '', '', '', '', '', '', '', '', ''],
+         ['', '', '', '', '', 'pawn', '', '', '', ''],
+         ['', '', '', '', '', '☆', '🌊', 'III', 'II', '☉']
+      ],
+      label: 'SENET.JOURNEY.v1'
+    }
   };
 };
 
@@ -295,56 +335,78 @@ const generateAlcuinoProblem = (id: string, difficulty: 'easy' | 'medium' | 'har
     inputType: 'choice',
     category: 'Alcuin',
     difficulty,
-    points: 30
+    points: 30,
+    visualData: {
+      type: 'row',
+      row: ['🐺', '🐐', '🥬', '|', '🚣'],
+      label: 'RIVER.CROSSING.v1'
+    }
   };
 };
 
 const generateStomachionProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "How many pieces make up Archimedes' Stomachion puzzle?",
-    answer: 14,
+    question: "Stomachion is a 12x12 square divided into 14 pieces. What is the total area of the puzzle?",
+    answer: 144,
     inputType: 'text',
     category: 'Stomachion',
     difficulty,
-    points: 40
+    points: 40,
+    hint: "Area = Side x Side",
+    visualData: {
+      type: 'logic',
+      label: '12 x 12'
+    }
   };
 };
 
 const generate15PuzzleProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In the 15 Puzzle (4x4), how many empty spaces are there?",
-    answer: 1,
+    question: "A 4x4 grid has 16 slots. If 15 slots are occupied by tiles, what fraction of the board is empty?",
+    answer: "1/16",
     inputType: 'text',
     category: '15 Puzzle',
     difficulty,
-    points: 15
+    points: 15,
+    hint: "One empty slot out of sixteen total slots.",
+    visualData: {
+      type: 'grid',
+      grid: [
+        ['1', '2', '3', '4'],
+        ['5', '6', '7', '8'],
+        ['9', '10', '11', '12'],
+        ['13', '14', '15', '']
+      ],
+      label: 'NUMERIC.SLIDE.v1'
+    }
   };
 };
 
 const generateTangramProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "How many pieces are in a classic Tangram?",
-    answer: 7,
+    question: "A Tangram set has 7 pieces that form a square. If the total area is 64 cm², and the two large triangles each represent 1/4 of that area, what is the area of one large triangle?",
+    answer: 16,
     inputType: 'text',
     category: 'Tangram',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "Divide 64 by 4."
   };
 };
 
 const generatePoliminosProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "What is a polyomino made of 5 squares called?",
-    answer: "Pentomino",
-    options: ["Tetromino", "Pentomino", "Hexomino"],
-    inputType: 'choice',
+    question: "If a pentomino is made of 5 squares and a tetromino is made of 4, how many squares are there in 3 pentominoes and 2 tetrominoes?",
+    answer: 23,
+    inputType: 'text',
     category: 'Polyminoes',
     difficulty,
-    points: 25
+    points: 25,
+    hint: "(3 x 5) + (2 x 4) = ?"
   };
 };
 
@@ -356,20 +418,30 @@ const generateMagicSquaresProblem = (id: string, difficulty: 'easy' | 'medium' |
     inputType: 'text',
     category: 'Magic Squares',
     difficulty,
-    points: 40
+    points: 40,
+    visualData: {
+      type: 'grid',
+      grid: [
+        ['?', '1', '?'],
+        ['?', '5', '7'],
+        ['4', '9', '2']
+      ],
+      label: 'HE-TU.MAGIC_SQUARE'
+    }
   };
 };
 
 const generateSamLoydProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "Which country was the famous Sam Loyd from?",
-    answer: "USA",
-    options: ["England", "USA", "France"],
+    question: "Sam Loyd posed a puzzle: If 1.5 hens lay 1.5 eggs in 1.5 days, how many eggs does one hen lay in one day?",
+    answer: "2/3",
+    options: ["1", "2/3", "1/2", "0.5"],
     inputType: 'choice',
     category: 'Sam Loyd',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "Think about the rates."
   };
 };
 
@@ -388,13 +460,13 @@ const generateEinsteinProblem = (id: string, difficulty: 'easy' | 'medium' | 'ha
 const generateSokobanProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Sokoban, what can you NEVER do with the boxes?",
-    answer: "Pull",
-    options: ["Push", "Pull", "Rotate"],
-    inputType: 'choice',
+    question: "To move a box from (1,1) to (4,3), what is the minimum number of steps required?",
+    answer: 5,
+    inputType: 'text',
     category: 'Sokoban',
     difficulty,
-    points: 25
+    points: 25,
+    hint: "|4-1| + |3-1| = ?"
   };
 };
 
@@ -431,7 +503,16 @@ const generateSudokuProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard
     inputType: 'text',
     category: 'Sudoku',
     difficulty,
-    points: 35
+    points: 35,
+    visualData: {
+      type: 'grid',
+      grid: [
+        ['5', '3', ''],
+        ['6', '', ''],
+        ['', '9', '8']
+      ],
+      label: 'SUDOKU.PARTIAL.9x9'
+    }
   };
 };
 
@@ -443,7 +524,8 @@ const generateNimProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'):
     inputType: 'text',
     category: 'Nim',
     difficulty,
-    points: 45
+    points: 45,
+    visualData: { type: 'count', count: 15, icon: '🥢' }
   };
 };
 
@@ -463,39 +545,55 @@ const generate24Problem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): 
 const generateTantrixProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Tantrix, what is the main color of the connection line?",
-    answer: "Red",
-    options: ["Blue", "Red", "Yellow"],
-    inputType: 'choice',
+    question: "A hexagonal tile has 6 edges. If 3 paths connect these edges in pairs, how many endpoints are there total across all paths on one tile?",
+    answer: 6,
+    inputType: 'text',
     category: 'Tantrix',
     difficulty,
-    points: 30
+    points: 30,
+    hint: "Every path endpoint is on an edge.",
+    visualData: {
+      type: 'shape',
+      shape: 'hexagon',
+      label: 'TANTRIX.UNIT.v2'
+    }
   };
 };
 
 const generateAzumetriaProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "What is the base element of the game Azumetria?",
-    answer: "Tile",
-    options: ["Circle", "Tile", "Line"],
-    inputType: 'choice',
+    question: "A square tile has 4-fold rotational symmetry. If you rotate it by 90 degrees 7 times, what is the net rotation in degrees relative to the original position?",
+    answer: 270,
+    inputType: 'text',
     category: 'Azumetria',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "(7 x 90) mod 360 = ?"
   };
 };
 
 const generateDotsAndBoxesProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "Who wins the point for a square in Dots and Boxes?",
-    answer: "The one who closes the 4th side",
-    options: ["The one who closes the 4th side", "The one who started the line", "The one with more pieces"],
-    inputType: 'choice',
+    question: "In a 3x3 array of dots, how many possible horizontal lines can you draw between adjacent dots?",
+    answer: 6,
+    inputType: 'text',
     category: 'Dots & Boxes',
     difficulty,
-    points: 25
+    points: 25,
+    hint: "2 segments per row, 3 rows total.",
+    visualData: {
+      type: 'grid',
+      grid: [
+        ['●', '-', '●', '-', '●'],
+        ['', '', '', '', ''],
+        ['●', '', '●', '', '●'],
+        ['', '', '', '', ''],
+        ['●', '', '●', '', '●']
+      ],
+      label: 'DOTS.AND.BOXES.MAP'
+    }
   };
 };
 
@@ -519,7 +617,20 @@ const generateSolitaireProblem = (id: string, difficulty: 'easy' | 'medium' | 'h
     inputType: 'text',
     category: 'Solitaire',
     difficulty,
-    points: 25
+    points: 25,
+    visualData: {
+      type: 'grid',
+      grid: [
+        [null, null, '●', '●', '●', null, null],
+        [null, null, '●', '●', '●', null, null],
+        ['●', '●', '●', '●', '●', '●', '●'],
+        ['●', '●', '●', '', '●', '●', '●'],
+        ['●', '●', '●', '●', '●', '●', '●'],
+        [null, null, '●', '●', '●', null, null],
+        [null, null, '●', '●', '●', null, null]
+      ],
+      label: 'SOLITAIRE.HALO.v1'
+    }
   };
 };
 
@@ -531,121 +642,164 @@ const generateFrogProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard')
     inputType: 'text',
     category: 'Frog',
     difficulty,
-    points: 50
+    points: 50,
+    visualData: {
+      type: 'row',
+      row: ['웃', '웃', '웃', '', '▣', '▣', '▣'],
+      label: 'FROG.JUMP.SIM'
+    }
   };
 };
 
 const generateLifeGameProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In the Game of Life, what happens to a cell with 1 neighbor?",
-    answer: "Dies of isolation",
-    options: ["Survives", "Dies of isolation", "Reproduces"],
+    question: "In the Game of Life, a cell with 4 or more neighbors dies from overpopulation. If a cell is surrounded by an 'X' pattern (4 diagonal neighbors), will it survive?",
+    answer: "No",
+    options: ["Yes", "No"],
     inputType: 'choice',
     category: 'Life Game',
     difficulty,
-    points: 35
+    points: 35,
+    hint: "4 neighbors > 3."
   };
 };
 
 const generatePeoesProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In the game of Pawns, what happens when you reach the end of the board?",
-    answer: "Win the game",
-    options: ["Promote to Queen", "Win the game", "Get blocked"],
-    inputType: 'choice',
+    question: "On an 8x8 board, a Pawn moves forward 1 square per turn. If it starts at row 2, what is the minimum number of moves to reach row 8?",
+    answer: 6,
+    inputType: 'text',
     category: 'Pawns',
     difficulty,
-    points: 20
+    points: 20,
+    hint: "8 - 2 = ?"
   };
 };
 
 const generateCheckersProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Portuguese Checkers, does 'blowing' (removing a piece for not capturing) exist?",
-    answer: "No",
-    options: ["Yes", "No"],
-    inputType: 'choice',
+    question: "In an 8x8 Checkerboard, how many squares are black if the pattern alternates starting with white?",
+    answer: 32,
+    inputType: 'text',
     category: 'Checkers',
     difficulty,
-    points: 15
+    points: 15,
+    hint: "Half of 64.",
+    visualData: {
+      type: 'grid',
+      grid: [
+        ['●', '', '●', ''],
+        ['', '●', '', '●'],
+        ['○', '', '○', ''],
+        ['', '○', '', '○']
+      ],
+      style: 'checkers',
+      label: 'DRAUGHTS.v1'
+    }
   };
 };
 
 const generateChessProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
+  const grid = [
+    ['rook', 'knight', 'bishop', 'queen', 'king'],
+    ['pawn', 'pawn', 'pawn', 'pawn', 'pawn'],
+    ['', '', '', '', ''],
+    ['w-pawn', 'w-pawn', 'w-pawn', 'w-pawn', 'w-pawn'],
+    ['w-rook', 'w-knight', 'w-bishop', 'w-queen', 'w-king']
+  ];
   return {
     id,
-    question: "In Chess, which is the only piece that can jump over others?",
-    answer: "Knight",
-    options: ["Rook", "Bishop", "Knight"],
+    question: "A Knight moves 2 squares in one direction and 1 square perpendicularly. From (0,0), can it reach (1,1) in exactly two moves?",
+    answer: "Yes",
+    options: ["Yes", "No"],
     inputType: 'choice',
     category: 'Chess',
     difficulty,
-    points: 15
+    points: 15,
+    hint: "(0,1) -> (2,2) -> (1,0) ... wait, check the coordinates.",
+    visualData: {
+      type: 'grid',
+      grid: grid,
+      style: 'chess',
+      label: 'CHESS.ENGINE.ALPHA'
+    }
   };
 };
 
 const generateYoteProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Yoté, does capturing a piece allow you to remove another one of your choice?",
-    answer: "Yes",
-    options: ["Yes", "No"],
-    inputType: 'choice',
+    question: "A Yote board is 5 rows by 6 columns. What is the total number of squares?",
+    answer: 30,
+    inputType: 'text',
     category: 'Yoté',
     difficulty,
-    points: 40
+    points: 40,
+    hint: "Multiply rows by columns.",
+    visualData: {
+      type: 'grid',
+      grid: Array(5).fill(Array(6).fill(''))
+    }
   };
 };
 
 const generatePentalfaProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Pentalfa, how many pieces should you place on the star?",
-    answer: 9,
+    question: "A Pentalfa star has 5 outer vertices and 5 inner vertices. What is the total number of points in the figure?",
+    answer: 10,
     inputType: 'text',
     category: 'Pentalfa',
     difficulty,
-    points: 40
+    points: 40,
+    hint: "5 + 5 = ?",
+    visualData: {
+      type: 'count',
+      count: 10,
+      icon: '★'
+    }
   };
 };
 
 const generateSesquiProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "What mathematical concept is the game Sesqui based on?",
-    answer: "Parity",
-    options: ["Primes", "Parity", "Fractions"],
+    question: "A game uses parity logic. If you have a pile of 17 tokens and add 14 more, is the total number of tokens even or odd?",
+    answer: "Odd",
+    options: ["Even", "Odd"],
     inputType: 'choice',
     category: 'Sesqui',
     difficulty,
-    points: 35
+    points: 35,
+    hint: "Odd + Even = ?"
   };
 };
 
 const generateHexiamanteProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "How many triangles make up a Hexiamond?",
-    answer: 6,
+    question: "A Hexiamond is made of 6 equilateral triangles. If one triangle has area 5 cm², what is the total area of the Hexiamond?",
+    answer: 30,
     inputType: 'text',
     category: 'Hexiamante',
     difficulty,
-    points: 25
+    points: 25,
+    hint: "6 x 5 = ?"
   };
 };
 
 const generateMetaProblem = (id: string, difficulty: 'easy' | 'medium' | 'hard'): MathProblem => {
   return {
     id,
-    question: "In Meta, what type are the boards?",
-    answer: "Concentric",
-    options: ["Parallel", "Concentric", "Crossed"],
-    inputType: 'choice',
+    question: "Three concentric squares have side lengths 2, 4, and 6. What is the perimeter of the middle square?",
+    answer: 16,
+    inputType: 'text',
     category: 'Meta',
     difficulty,
-    points: 35
+    points: 35,
+    hint: "Perimeter = 4 x Side"
   };
 };

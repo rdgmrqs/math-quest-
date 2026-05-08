@@ -1,3 +1,5 @@
+export type MathMode = 'mixed' | 'classic' | 'story' | 'puzzle' | 'timed' | 'survival';
+
 export interface MathProblem {
   id: string;
   question: string;
@@ -19,6 +21,7 @@ export interface MathProblem {
     row?: string[];   // For simple sequences of icons/labels
     label?: string;
     markerPosition?: { x: number, y: number }; // For board games
+    style?: string;
   };
 }
 
